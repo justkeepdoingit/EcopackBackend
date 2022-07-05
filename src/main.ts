@@ -15,7 +15,7 @@ async function bootstrap() {
   
     //     callback(new Error('Not allowed by CORS'));
     // }
-    origin: 'http://localhost:4200'
+    origin: 'https://ecopack-f91d0.web.app'
   })
   app.use(cookieParser());
   await app.listen(process.env.PORT || 3000);

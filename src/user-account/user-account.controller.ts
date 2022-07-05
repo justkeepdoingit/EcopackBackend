@@ -19,18 +19,18 @@ export class UserAccountController {
   async loginAcc(@Body() loginAcc: any, @Res({ passthrough: true }) response: Response) {
     const logins = await this.userAccountService.loginAcc(loginAcc);
     if(logins){
-      response.cookie('id', logins.id)
-      response.cookie('user_rights', logins.user_rights)
-      response.cookie('planner', logins.planner)
-      response.cookie('converting', logins.converting)
-      response.cookie('delivery', logins.delivery)
-      response.cookie('edit_orders', logins.edit_orders)
-      response.cookie('lineup', logins.lineup)
-      response.cookie('fg', logins.fg)
-      response.cookie('returns', logins.returns)
-      response.cookie('status_page', logins.status_page)
-      response.cookie('useracc', logins.useracc)
-      response.cookie('import_orders', logins.import_orders)
+      // response.cookie('id', logins.id)
+      // response.cookie('user_rights', logins.user_rights)
+      // response.cookie('planner', logins.planner)
+      // response.cookie('converting', logins.converting)
+      // response.cookie('delivery', logins.delivery)
+      // response.cookie('edit_orders', logins.edit_orders)
+      // response.cookie('lineup', logins.lineup)
+      // response.cookie('fg', logins.fg)
+      // response.cookie('returns', logins.returns)
+      // response.cookie('status_page', logins.status_page)
+      // response.cookie('useracc', logins.useracc)
+      // response.cookie('import_orders', logins.import_orders)
       return logins
     }
   }
