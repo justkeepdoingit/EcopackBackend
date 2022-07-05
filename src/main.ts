@@ -9,12 +9,13 @@ async function bootstrap() {
 
   app.enableCors({
     credentials: true,
-    origin: (origin, callback) => {
-      if(whitelist.includes(origin))
-        return callback(null, true)
+    // origin: (origin, callback) => {
+    //   if(whitelist.includes(origin))
+    //     return callback(null, true)
   
-        callback(new Error('Not allowed by CORS'));
-    }
+    //     callback(new Error('Not allowed by CORS'));
+    // }
+    origin: 'http://localhost:4200'
   })
   app.use(cookieParser());
   await app.listen(process.env.PORT || 3000);
