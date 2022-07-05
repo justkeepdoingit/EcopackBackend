@@ -29,6 +29,9 @@ import { OrderList } from './order-list/entities/order-list.entity';
     url: 'postgres://mgbozfolocxpeo:259e81d484a4a9c2d699006d1e812cea64d7600a44f1d2425c6d465974221fa8@ec2-44-205-41-76.compute-1.amazonaws.com:5432/dastnkhi36oees',
     entities: [UserAccount, OrderList],
     synchronize: true,
+    ssl: {
+      rejectUnauthorized: false,
+    },
   }), OrderListModule],
   controllers: [AppController],
   providers: [AppService],
