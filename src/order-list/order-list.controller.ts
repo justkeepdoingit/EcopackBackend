@@ -84,6 +84,11 @@ export class OrderListController {
     return this.orderListService.getReject(id);
   }
 
+  @Get('/getStatuses')
+  getOrderStatus(){
+    return this.orderListService.getOrderStatus();
+  }
+
   @Post('/uploads')
   @UseInterceptors(
     FileInterceptor("csv", {

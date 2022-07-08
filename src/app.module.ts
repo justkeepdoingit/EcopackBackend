@@ -18,7 +18,7 @@ import { rejectList } from './order-list/entities/reject-list.entity';
   //   database: 'ecopack',
   //   entities: [UserAccount, OrderList, rejectList],
   //   synchronize: true,
-  // }), OrderListModule],
+  // }), OrderListModule, UserAccountModule],
   imports: [UserAccountModule, TypeOrmModule.forRoot({
     type: 'postgres',
     host: 'ec2-44-205-41-76.compute-1.amazonaws.com',
@@ -33,7 +33,7 @@ import { rejectList } from './order-list/entities/reject-list.entity';
     ssl: {
       rejectUnauthorized: false,
     },
-  }), OrderListModule],
+  }), OrderListModule, UserAccountModule],
   controllers: [AppController],
   providers: [AppService],
 })
