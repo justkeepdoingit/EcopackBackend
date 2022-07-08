@@ -4,6 +4,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { UpdateOrderListDto } from './dto/update-order-list.dto';
 import { orderList } from './dto/orderlist.dto';
 import { Response, Express} from 'express';
+import { rejectList } from './entities/reject-list.entity';
+import { rejectListDTO } from './dto/rejectList.dto';
 @Controller('order-list')
 export class OrderListController {
   constructor(private readonly orderListService: OrderListService) {}
@@ -18,11 +20,19 @@ export class OrderListController {
     return await this.orderListService.getLineup();
   }
 
+  @Get('convertOrders')
+  async getConvert(){
+    return await this.orderListService.getConvert();
+  }
+
   @Post('/lineup')
   updateToLineup(@Body() data: orderList[]){
+    const date = require('date-and-time')
     data.forEach(element => {
       let newData = {
-        lineup: true
+        lineup: true,
+        lineuptime: date.format(new Date(), 'YYYY/MM/DD HH:mm:ss'),
+        lastedited: date.format(new Date(), 'YYYY/MM/DD HH:mm:ss')
       }
       this.orderListService.lineup(element.id, newData)
     });
@@ -30,9 +40,12 @@ export class OrderListController {
 
   @Post('/fg')
   updateToFG(@Body() data: orderList[]){
+    const date = require('date-and-time')
     data.forEach(element => {
       let newData = {
-        fg: true
+        fg: true,
+        fgtime: date.format(new Date(), 'YYYY/MM/DD HH:mm:ss'),
+        lastedited: date.format(new Date(), 'YYYY/MM/DD HH:mm:ss')
       }
       this.orderListService.fg(element.id, newData)
     });
@@ -40,12 +53,35 @@ export class OrderListController {
 
   @Post('/convert')
   updateToCon(@Body() data: orderList[]){
+    const date = require('date-and-time')
     data.forEach(element => {
       let newData = {
-        fg: true
+        converting: true,
+        converttime: date.format(new Date(), 'YYYY/MM/DD HH:mm:ss'),
+        lastedited: date.format(new Date(), 'YYYY/MM/DD HH:mm:ss')
       }
       this.orderListService.con(element.id, newData)
     });
+  }
+
+  @Post('updateReject/:id')
+  updateReject(@Param('id') id:number, @Body() data: rejectList){
+    let newData: rejectListDTO = {
+      orderid: id,
+      creasingr: data.creasingr,
+      dcr: data.dcr,
+      printingr: data.printingr,
+      finishr: data.finishr,
+      corr: data.corr,
+      corl: data.corl,
+      comment: data.comment
+    }
+    return this.orderListService.updateReject(newData);
+  }
+
+  @Get('/getReject/:id')
+  getReject(@Param('id') id: number){
+    return this.orderListService.getReject(id);
   }
 
   @Post('/uploads')

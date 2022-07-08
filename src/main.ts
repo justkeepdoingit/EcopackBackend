@@ -5,7 +5,7 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule);
 
-  const whitelist = ['http://localhost:4200', 'http://example2.com'];
+  const whitelist = ['http://localhost:4200', 'https://ecopack-f91d0.web.app'];
 
   app.enableCors({
     credentials: true,
@@ -15,11 +15,9 @@ async function bootstrap() {
   
     //     callback(new Error('Not allowed by CORS'));
     // }
-    origin: 'https://ecopack-f91d0.web.app'
+    origin: whitelist[1]
   })
   app.use(cookieParser());
   await app.listen(process.env.PORT || 3000);
-  // npm config set strict-ssl false
-  // 127.0.0.1/32 pg_hba.conf host address
 }
 bootstrap();

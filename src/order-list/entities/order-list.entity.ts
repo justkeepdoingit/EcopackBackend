@@ -32,4 +32,20 @@ export class OrderList {
     deliverydate: string
     @Column({nullable:true})
     comment: string
+    @Column({nullable: true, type: 'date'})
+    lineuptime: string
+    @Column({nullable: true, type: 'date'})
+    converttime: string
+    @Column({nullable: true, type: 'date'})
+    fgtime: string
+    @Column({nullable: true, type: 'date'})
+    lastedited: string
+    @Column({default: false})
+    c: boolean
+    @Column({default: false})
+    p: boolean
+    @Column({default: false})
+    o: boolean
+    @Column({default: false})
+    f: boolean
 }

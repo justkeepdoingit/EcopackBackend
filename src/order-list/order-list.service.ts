@@ -2,40 +2,46 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { orderList } from './dto/orderlist.dto';
+import { rejectListDTO } from './dto/rejectList.dto';
 import { UpdateOrderListDto } from './dto/update-order-list.dto';
 import { OrderList } from './entities/order-list.entity';
+import { rejectList } from './entities/reject-list.entity';
 // import date from 'date-and-time'
 @Injectable()
 export class OrderListService {
 
   constructor(
     @InjectRepository(OrderList)
-    private orders: Repository<OrderList>
+    private orders: Repository<OrderList>,
+    @InjectRepository(rejectList)
+    private reject: Repository<rejectList>
   ){
 
   }
 
-  async uploadFile(data: orderList[]){
+  async uploadFile(data: any){
     try {
       let Id = await this.orders.query('SELECT * FROM order_list ORDER BY id DESC LIMIT 1');
       let orderId = Id[0].id;
-      let uploadData: orderList[] = data;
-      const date = require('date-and-time');
-      let saveData: any[] = [];
+      let uploadData: any[] = data;
 
+      let saveData: any[] = [];
+      const date = require('date-and-time');
       uploadData.forEach(item=>{
         orderId++;
-        let newData = {
-          id: orderId,
-          date: date.format(new Date(item.date), 'YYYY-MM-DD'),
-          so: item.so,
-          po: item.po,
-          name: item.name,
-          item: item.item,
-          itemdesc: item.itemdesc,
-          qty: item.qty
-        }
+        if(item.Item){
+          let newData = {
+            id: orderId,
+            date: date.format(new Date(item.Date), 'YYYY-MM-DD'),
+            so: item.Num,
+            po: item['P. O. #'],
+            name: item.Name,
+            item: item.Item,
+            itemdesc: item['Item Description'],
+            qty: Math.abs(parseInt(item.Qty))
+          }
         saveData.push(newData);  
+      }
     })
     this.orders.save(saveData)
     return 'Success'
@@ -65,6 +71,34 @@ export class OrderListService {
     return this.orders.createQueryBuilder().
     where('lineup = true AND converting = false AND fg = false AND delivery = false').
     getMany()
+  }
+
+  getConvert(){
+    return this.orders.createQueryBuilder().
+    where('lineup = true AND converting = true AND fg = false AND delivery = false').
+    getMany()
+  }
+
+  async getReject(id: number){
+    let rejects = await this.reject.createQueryBuilder().
+    where('orderid = :id',{
+      id: id
+    }).getOne()
+    return rejects;
+  }
+
+  async updateReject(data: rejectListDTO){
+    let checkReject = await this.reject.createQueryBuilder().
+    where('orderid = :id',{
+      id: data.orderid
+    }).getOne()
+
+    if(checkReject){
+      this.reject.update({orderid: data.orderid}, data)
+    }
+    else{
+      this.reject.save(data);
+    }
   }
 
   findAll() {
