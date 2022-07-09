@@ -20,6 +20,11 @@ export class OrderListController {
     return await this.orderListService.getLineup();
   }
 
+  @Get('fgOrders')
+  async getFg(){
+    return await this.orderListService.getFg();
+  }
+
   @Get('convertOrders')
   async getConvert(){
     return await this.orderListService.getConvert();
@@ -64,6 +69,19 @@ export class OrderListController {
     });
   }
 
+  @Post('/delivery')
+  updateToDelivery(@Body() data: orderList[]){
+    const date = require('date-and-time')
+    data.forEach(element => {
+      let newData = {
+        delivery: true,
+        // converttime: date.format(new Date(), 'YYYY/MM/DD HH:mm:ss'),
+        lastedited: date.format(new Date(), 'YYYY/MM/DD HH:mm:ss')
+      }
+      this.orderListService.delivery(element.id, newData)
+    });
+  }
+
   @Post('updateReject/:id')
   updateReject(@Param('id') id:number, @Body() data: rejectList){
     let newData: rejectListDTO = {
@@ -105,7 +123,6 @@ export class OrderListController {
         .on('data', (data) => results.push(data))
         .on('end', async () => {
           this.orderListService.uploadFile(results)
-          // console.log(results);
       });
   }
 

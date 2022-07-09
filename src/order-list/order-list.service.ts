@@ -21,11 +21,13 @@ export class OrderListService {
 
   async uploadFile(data: any){
     try {
-      let Id = await this.orders.query('SELECT * FROM order_list ORDER BY id DESC LIMIT 1');
-      let orderId = Id[0].id;
-      let uploadData: any[] = data;
 
+
+      let Id = await this.orders.query('SELECT * FROM order_list ORDER BY id DESC LIMIT 1');
+      let orderId = Id.lenght == 0 ? Id[0].id : 0;
+      let uploadData: any[] = data;
       let saveData: any[] = [];
+
       const date = require('date-and-time');
       uploadData.forEach(item=>{
         orderId++;
@@ -40,7 +42,7 @@ export class OrderListService {
             itemdesc: item['Item Description'],
             qty: Math.abs(parseInt(item.Qty))
           }
-        saveData.push(newData);  
+        saveData.push(newData); 
       }
     })
     this.orders.save(saveData)
@@ -60,6 +62,9 @@ export class OrderListService {
   con(id: number, data: any){
     this.orders.update(id, data)
   }
+  delivery(id: number, data: any){
+    this.orders.update(id, data)
+  }
 
   getPlanner(){
     return this.orders.createQueryBuilder().
@@ -76,6 +81,12 @@ export class OrderListService {
   getConvert(){
     return this.orders.createQueryBuilder().
     where('lineup = true AND converting = true AND fg = false AND delivery = false').
+    getMany()
+  }
+
+  getFg(){
+    return this.orders.createQueryBuilder().
+    where('lineup = true AND converting = true AND fg = true AND delivery = false').
     getMany()
   }
 

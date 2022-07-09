@@ -15,7 +15,7 @@ async function bootstrap() {
   
     //     callback(new Error('Not allowed by CORS'));
     // }
-    origin: whitelist[1]
+    origin: whitelist[0]
   })
   app.use(cookieParser());
   await app.listen(process.env.PORT || 3000);
