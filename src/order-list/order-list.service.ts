@@ -86,7 +86,7 @@ export class OrderListService {
 
   getFg(){
     return this.orders.createQueryBuilder().
-    where('lineup = true AND converting = true AND fg = true AND delivery = false').
+    where('lineup = true AND fg = true AND delivery = false').
     getMany()
   }
 
@@ -117,8 +117,8 @@ export class OrderListService {
       'SELECT COUNT(CASE WHEN lineup = false AND converting = false AND fg = false AND delivery = false THEN id END) as planning,' +
       'COUNT(CASE WHEN lineup = true AND converting = false AND fg = false AND delivery = false THEN id END) as lineup,' +
       'COUNT(CASE WHEN lineup = true AND converting = true AND fg = false AND delivery = false THEN id END) as convert,' +
-      'COUNT(CASE WHEN lineup = true AND converting = true AND fg = true AND delivery = false THEN id END) as fg,' +
-      'COUNT(CASE WHEN lineup = true AND converting = true AND fg = true AND delivery = true THEN id END) as delivery FROM order_list'
+      'COUNT(CASE WHEN lineup = true AND fg = true AND delivery = false THEN id END) as fg,' +
+      'COUNT(CASE WHEN lineup = true AND fg = true AND delivery = true THEN id END) as delivery FROM order_list'
       )
       return orders
   }
