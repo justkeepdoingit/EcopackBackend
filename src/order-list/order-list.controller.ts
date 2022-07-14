@@ -82,7 +82,6 @@ export class OrderListController {
       let newData = {
         delivery: true,
         status: 'Queue',
-        // converttime: date.format(new Date(), 'YYYY/MM/DD HH:mm:ss'),
         lastedited: date.format(new Date(), 'YYYY/MM/DD HH:mm:ss')
       }
       this.orderListService.delivery(element.id, newData)
