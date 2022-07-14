@@ -81,7 +81,7 @@ export class OrderListController {
     data.forEach(element => {
       let newData = {
         delivery: true,
-        status: 'Queue',
+        shipstatus: 'Queue',
         lastedited: date.format(new Date(), 'YYYY/MM/DD HH:mm:ss')
       }
       this.orderListService.delivery(element.id, newData)
