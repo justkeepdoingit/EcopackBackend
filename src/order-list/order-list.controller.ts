@@ -6,6 +6,7 @@ import { orderList } from './dto/orderlist.dto';
 import { Response, Express} from 'express';
 import { rejectList } from './entities/reject-list.entity';
 import { rejectListDTO } from './dto/rejectList.dto';
+import { forDelivery } from './entities/for-delivery.entity';
 @Controller('order-list')
 export class OrderListController {
   constructor(private readonly orderListService: OrderListService) {}
@@ -23,6 +24,11 @@ export class OrderListController {
   @Get('fgOrders')
   async getFg(){
     return await this.orderListService.getFg();
+  }
+
+  @Get('deliveryorders')
+  async getDelivery(){
+    return await this.orderListService.getDelivery();
   }
 
   @Get('convertOrders')
@@ -75,11 +81,27 @@ export class OrderListController {
     data.forEach(element => {
       let newData = {
         delivery: true,
+        status: 'Queue',
         // converttime: date.format(new Date(), 'YYYY/MM/DD HH:mm:ss'),
         lastedited: date.format(new Date(), 'YYYY/MM/DD HH:mm:ss')
       }
       this.orderListService.delivery(element.id, newData)
     });
+  }
+
+  @Get('/getShipping/:id')
+  getShipping(@Param() orderid: number){
+    return this.orderListService.shipping(orderid);
+  }
+
+  @Post('/updateDelivery')
+  postDelivery(@Body() data: any){
+    this.orderListService.updateAdd(data);
+  }
+
+  @Post('/updateShipping')
+  shippingUpdate(@Body() data: forDelivery){
+    this.orderListService.updateShipping(data);
   }
 
   @Post('updateReject/:id')

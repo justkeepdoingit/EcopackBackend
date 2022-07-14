@@ -1,7 +1,8 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
-
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { forDelivery } from "./for-delivery.entity";
 @Entity()
 export class OrderList {
+    @OneToMany(()=> forDelivery, (del)=>del.orderid, {cascade:true})
     @PrimaryGeneratedColumn()
     id: number
     @Column({type: "date"})
@@ -48,4 +49,6 @@ export class OrderList {
     o: boolean
     @Column({default: false})
     f: boolean
+    @Column({nullable: true})
+    shipstatus: string
 }

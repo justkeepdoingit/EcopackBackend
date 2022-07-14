@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { deliveryDto } from './dto/delivery.dto';
+import { deliveryModel } from './dto/deliverymode.model';
 import { orderList } from './dto/orderlist.dto';
 import { rejectListDTO } from './dto/rejectList.dto';
 import { UpdateOrderListDto } from './dto/update-order-list.dto';
+import { forDelivery } from './entities/for-delivery.entity';
 import { OrderList } from './entities/order-list.entity';
 import { rejectList } from './entities/reject-list.entity';
-// import date from 'date-and-time'
 @Injectable()
 export class OrderListService {
 
@@ -14,7 +16,9 @@ export class OrderListService {
     @InjectRepository(OrderList)
     private orders: Repository<OrderList>,
     @InjectRepository(rejectList)
-    private reject: Repository<rejectList>
+    private reject: Repository<rejectList>,
+    @InjectRepository(forDelivery)
+    private fordelivery: Repository<forDelivery>
   ){
 
   }
@@ -88,6 +92,125 @@ export class OrderListService {
     return this.orders.createQueryBuilder().
     where('lineup = true AND fg = true AND delivery = false').
     getMany()
+  }
+
+  async getDelivery(){
+
+    let delivery: any = await this.orders.createQueryBuilder('orders').
+    innerJoinAndSelect('orders.id','delivery').
+    where("orders.lineup = true AND orders.fg = true AND orders.delivery = true AND orders.shipstatus = 'Partial Delivery'").
+    getMany()
+    
+    let returnData: deliveryModel[] = [];
+
+    let a = 0;
+    delivery.forEach(element => {
+      let partial: deliveryModel;
+      let delievryqty = 0;
+      try {
+        if(element.id.length > 0){
+          for(let i = 0; i < element.id.length; i++){
+            delievryqty+=element.id[i].qtyship;
+            partial = {
+              id: element.id[i].orderid,
+              date: element.date,
+              so: element.so,
+              po: element.po,
+              name: element.name,
+              item: element.item,
+              itemdesc: element.itemdesc,
+              qty: element.qty,
+              deliverydate: element.deliverydate,
+              shipqty: element.shipqty,
+              shipstatus: element.shipstatus,
+              deliveryqty: delievryqty
+            }
+          }
+        }
+      } catch (error) {
+        console.log(error)
+      }
+      a++;
+      returnData.push(partial)
+    });
+    
+
+    let queuedData = await this.orders.createQueryBuilder().
+    where("lineup = true AND fg = true AND delivery = true AND (shipstatus = 'Queue')").
+    getMany()
+
+    queuedData.forEach(data=>{
+      let queue: deliveryModel = {
+        id: data.id,
+        date: data.date,
+        so: data.so,
+        po: data.po,
+        name: data.name,
+        item: data.item,
+        itemdesc: data.itemdesc,
+        qty: data.qty,
+        deliverydate: data.deliverydate,
+        shipqty: data.shipqty,
+        shipstatus: data.shipstatus,
+        deliveryqty: 0
+      }
+      returnData.push(queue);
+    })
+
+    return returnData;
+  }
+
+  async updateAdd(data:any){
+    // console.log(data);
+    let shipStatus: deliveryDto= {
+      receipt: data.receipt,
+      orderid: data.orderid,
+      itemid: data.itemid,
+      qtyship: data.qty,
+      shipstatus: data.status
+    }
+    
+    let updateStatus = {
+      shipstatus: data.status
+    }
+
+    let checkStatus = await this.orders.createQueryBuilder().
+    select('shipstatus').
+    where('id = :id', {
+      id: data.orderid
+    }).execute()
+
+    if(checkStatus[0].shipstatus == 'Queue'){
+      this.orders.update({id: data.orderid}, updateStatus);
+    }
+    else if(checkStatus[0].shipstatus == 'Partial Delivery'){
+      null
+    }
+
+    this.fordelivery.save(shipStatus);
+  }
+
+  async updateShipping(data:any){
+    let shipStatus: any = {
+      qtyship: data.qtyship,
+      shipstatus: data.shipstatus
+    }
+    
+    let updateStatus = {
+      shipstatus: data.status
+    }
+
+    this.fordelivery.update({id: data.id}, shipStatus)
+    this.orders.update({id: data.orderid}, updateStatus)
+  }
+
+  async shipping(orderid: any){
+    let data = await this.fordelivery.createQueryBuilder().
+    where('orderid = :id',{
+      id: orderid.id
+    }).execute()
+
+    return data;
   }
 
   async getReject(id: number){
