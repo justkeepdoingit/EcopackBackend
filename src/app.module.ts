@@ -38,7 +38,7 @@ import { PackingDetails } from './packing-list/entities/packing-detail.entity';
     ssl: {
       rejectUnauthorized: false,
     },
-  }), OrderListModule, UserAccountModule],
+  }), OrderListModule, UserAccountModule, PackingListModule],
   controllers: [AppController],
   providers: [AppService],
 })
