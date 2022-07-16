@@ -163,8 +163,35 @@ export class OrderListController {
   }
 
   @Patch('/updateOrder/:id')
-  updateOrder(@Param('id') id: number, @Body() updateData: orderList){
-    return this.orderListService.update(id, updateData)
+  updateOrder(@Param('id') id: number, @Body() updateData: any){
+    if(updateData.prodqty){
+      let machineqtyU = {
+        shipqty: updateData.prodqty,
+        qty: updateData.qty,
+        itemdesc: updateData.itemdesc,
+        comment: updateData.comment,
+      }
+      this.orderListService.updateProd(id, updateData.prodqty)
+      this.orderListService.update(id,machineqtyU)
+    }
+    else if(updateData.c || updateData.p || updateData.o || updateData.f){
+      console.log(updateData);
+      // this.orderListService.update(id, updateData)
+    }
+    else if(updateData.shipqty){
+      let qtyUpdate = {
+        shipqty: updateData.shipqty,
+        qty: updateData.qty,
+        itemdesc: updateData.itemdesc,
+        comment: updateData.comment,
+        prodqty: updateData.shipqty,
+      }
+      this.orderListService.update(id, qtyUpdate)
+    }
+    else{
+      this.orderListService.update(id, updateData)
+    }
+
   }
 
   @Delete(':id')

@@ -7,6 +7,7 @@ import { orderList } from './dto/orderlist.dto';
 import { rejectListDTO } from './dto/rejectList.dto';
 import { UpdateOrderListDto } from './dto/update-order-list.dto';
 import { forDelivery } from './entities/for-delivery.entity';
+import { itemRecords } from './entities/item.entity';
 import { OrderList } from './entities/order-list.entity';
 import { rejectList } from './entities/reject-list.entity';
 @Injectable()
@@ -18,26 +19,24 @@ export class OrderListService {
     @InjectRepository(rejectList)
     private reject: Repository<rejectList>,
     @InjectRepository(forDelivery)
-    private fordelivery: Repository<forDelivery>
+    private fordelivery: Repository<forDelivery>,
+    @InjectRepository(itemRecords)
+    private itemRecords: Repository<itemRecords>
   ){
 
   }
 
   async uploadFile(data: any){
     try {
-
-
-      let Id = await this.orders.query('SELECT * FROM order_list ORDER BY id DESC LIMIT 1');
-      let orderId = Id.lenght == 0 ? Id[0].id : 0;
+      // let Id = await this.orders.query('SELECT * FROM order_list ORDER BY id DESC LIMIT 1');
+      // let orderId = Id.lenght == 0 ? Id[0].id : 0;
       let uploadData: any[] = data;
       let saveData: any[] = [];
 
       const date = require('date-and-time');
-      uploadData.forEach(item=>{
-        orderId++;
+      uploadData.forEach(async item=>{
         if(item.Item){
           let newData = {
-            id: orderId,
             date: date.format(new Date(item.Date), 'YYYY-MM-DD'),
             so: item.Num,
             po: item['P. O. #'],
@@ -46,10 +45,24 @@ export class OrderListService {
             itemdesc: item['Item Description'],
             qty: Math.abs(parseInt(item.Qty))
           }
-        saveData.push(newData); 
+          saveData.push(newData); 
+        }
+
+      let records = await this.itemRecords.find({
+        where: [{itemid: item.Item}]
+      })     
+      let itemData = {
+        itemid: item.Item
+      }
+      if(records.length == 0){
+        this.itemRecords.save(itemData)
       }
     })
     this.orders.save(saveData)
+    // console.log(saveData);
+
+
+
     return 'Success'
     } 
     catch (error) {
@@ -70,31 +83,38 @@ export class OrderListService {
     this.orders.update(id, data)
   }
 
-  getPlanner(){
-    return this.orders.createQueryBuilder().
+  async getPlanner(){
+    return await this.orders.createQueryBuilder().
     where('lineup = false AND converting = false AND fg = false AND delivery = false').
     getMany()
   }
 
-  getLineup(){
-    return this.orders.createQueryBuilder().
+  async getLineup(){
+    return await this.orders.createQueryBuilder().
     where('lineup = true AND converting = false AND fg = false AND delivery = false').
     getMany()
   }
 
-  getConvert(){
-    return this.orders.createQueryBuilder().
+  async getConvert(){
+    return await this.orders.createQueryBuilder().
     where('lineup = true AND converting = true AND fg = false AND delivery = false').
     getMany()
   }
 
-  getFg(){
-    return this.orders.createQueryBuilder().
+  async getFg(){
+    return await this.orders.createQueryBuilder().
     where('lineup = true AND fg = true AND delivery = false').
     getMany()
   }
 
   async getDelivery(){
+
+    // let delivery = await this.orders.createQueryBuilder('orders').
+    // leftJoinAndSelect('orders.id','orderdata').
+    // leftJoinAndMapMany('orders.id',forDelivery,'fororders','orderdata.id=foroders.orderid').
+    // getMany();
+
+    // console.log(delivery);
 
     let delivery: any = await this.orders.createQueryBuilder('orders').
     innerJoinAndSelect('orders.id','delivery').
@@ -120,6 +140,7 @@ export class OrderListService {
               item: element.item,
               itemdesc: element.itemdesc,
               qty: element.qty,
+              prodqty: element.prodqty,
               deliverydate: element.deliverydate,
               shipqty: element.shipqty,
               shipstatus: element.shipstatus,
@@ -149,6 +170,7 @@ export class OrderListService {
         item: data.item,
         itemdesc: data.itemdesc,
         qty: data.qty,
+        prodqty: data.prodqty,
         deliverydate: data.deliverydate,
         shipqty: data.shipqty,
         shipstatus: data.shipstatus,
@@ -233,6 +255,28 @@ export class OrderListService {
     else{
       this.reject.save(data);
     }
+    
+    let machineqty = await this.orders.findOne({
+      select: ['shipqty'],
+      where: [{id: data.orderid}]
+    })
+    
+    let newProdQty = machineqty.shipqty-data.corl-data.corr-data.creasingr-data.dcr-data.dcr-data.finishr-data.printingr;
+
+    this.orders.update({id: data.orderid}, {prodqty: newProdQty})
+  }
+
+  async updateProd(id:number, machine:number){
+
+    let rejects: rejectList = await this.reject.findOne({
+      where: [{orderid: id}]
+    })
+
+    let newProdQty = machine;
+    if(rejects){
+      newProdQty = machine-rejects.corl-rejects.corr-rejects.creasingr-rejects.dcr-rejects.dcr-rejects.finishr-rejects.printingr;
+    }
+    this.orders.update({id: id}, {prodqty: newProdQty})
   }
 
   async getOrderStatus(){

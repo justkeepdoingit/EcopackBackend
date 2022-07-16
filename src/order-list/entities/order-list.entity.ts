@@ -29,6 +29,8 @@ export class OrderList {
     delivery: boolean
     @Column({nullable:true})
     shipqty: number
+    @Column({nullable:true})
+    prodqty: number
     @Column({nullable:true, type: 'date'})
     deliverydate: string
     @Column({nullable:true})

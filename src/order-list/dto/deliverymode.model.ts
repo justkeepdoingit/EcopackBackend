@@ -9,6 +9,7 @@ export class deliveryModel{
     qty: number
     deliverydate: string
     shipqty: number
+    prodqty: number
     shipstatus: string
     deliveryqty: number
 }

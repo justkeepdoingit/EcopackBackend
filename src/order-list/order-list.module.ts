@@ -5,9 +5,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { OrderList } from './entities/order-list.entity';
 import { rejectList } from './entities/reject-list.entity';
 import { forDelivery } from './entities/for-delivery.entity';
+import { itemRecords } from './entities/item.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([OrderList, rejectList, forDelivery])],
+  imports: [TypeOrmModule.forFeature([OrderList, rejectList, forDelivery, itemRecords])],
   controllers: [OrderListController],
   providers: [OrderListService]
 })
