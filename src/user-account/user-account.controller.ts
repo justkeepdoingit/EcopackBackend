@@ -7,18 +7,18 @@ import { userDTO } from './dto/userAcc.dto';
 
 @Controller('user-account')
 export class UserAccountController {
-  constructor(private readonly userAccountService: UserAccountService) {}
+  constructor(private readonly userAccountService: UserAccountService) { }
 
 
   @Post('/register')
-  async registerAcc(@Body() registerAccs: any){
+  async registerAcc(@Body() registerAccs: any) {
     this.userAccountService.registerAcc(registerAccs);
   }
 
   @Post('/login')
   async loginAcc(@Body() loginAcc: any, @Res({ passthrough: true }) response: Response) {
     const logins = await this.userAccountService.loginAcc(loginAcc);
-    if(logins){
+    if (logins) {
       // response.cookie('id', logins.id)
       // response.cookie('user_rights', logins.user_rights)
       // response.cookie('planner', logins.planner)
@@ -36,19 +36,20 @@ export class UserAccountController {
   }
 
   @Get('/logout')
-  logout(@Res({ passthrough: true }) response: Response){
-      response.clearCookie('id')
-      response.clearCookie('user_rights')
-      response.clearCookie('planner')
-      response.clearCookie('converting')
-      response.clearCookie('delivery')
-      response.clearCookie('edit_orders')
-      response.clearCookie('lineup')
-      response.clearCookie('fg')
-      response.clearCookie('returns')
-      response.clearCookie('status_page')
-      response.clearCookie('useracc')
-      response.clearCookie('import_orders')
+  logout(@Res({ passthrough: true }) response: Response) {
+    response.clearCookie('id')
+    response.clearCookie('user_rights')
+    response.clearCookie('planner')
+    response.clearCookie('converting')
+    response.clearCookie('delivery')
+    response.clearCookie('edit_orders')
+    response.clearCookie('lineup')
+    response.clearCookie('fg')
+    response.clearCookie('returns')
+    response.clearCookie('status_page')
+    response.clearCookie('useracc')
+    response.clearCookie('import_orders')
+    response.clearCookie('packing')
   }
   @Patch('/updateUsers/:id')
   update(@Param('id') id: string, @Body() useracc: userDTO, response: Response) {
@@ -57,9 +58,9 @@ export class UserAccountController {
   }
 
   @Get('/findUser/:id')
-  async getUsers(@Param('id') id: number, @Res({ passthrough: true }) response: Response){
+  async getUsers(@Param('id') id: number, @Res({ passthrough: true }) response: Response) {
     const user = await this.userAccountService.findOne(id);
-    if(user){
+    if (user) {
       response.cookie('id', user.id)
       response.cookie('user_rights', user.user_rights)
       response.cookie('planner', user.planner)
@@ -72,11 +73,12 @@ export class UserAccountController {
       response.cookie('status_page', user.status_page)
       response.cookie('useracc', user.useracc)
       response.cookie('import_orders', user.import_orders)
+      response.cookie('packing', user.import_orders)
     }
   }
 
   @Get('/getAllUsers')
-  async getAllUsers(){
+  async getAllUsers() {
     return await this.findAll()
   }
 

@@ -31,6 +31,8 @@ export class UserAccount {
     status_page: boolean
     @Column({default: false})
     import_orders: boolean
+    @Column({ default: false })
+    packing: boolean
     @Column({default: false})
     useracc: boolean
     @Column({nullable: true})

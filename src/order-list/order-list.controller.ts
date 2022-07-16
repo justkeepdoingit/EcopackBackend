@@ -3,108 +3,128 @@ import { OrderListService } from './order-list.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UpdateOrderListDto } from './dto/update-order-list.dto';
 import { orderList } from './dto/orderlist.dto';
-import { Response, Express} from 'express';
+import { Response, Express } from 'express';
 import { rejectList } from './entities/reject-list.entity';
 import { rejectListDTO } from './dto/rejectList.dto';
 import { forDelivery } from './entities/for-delivery.entity';
 @Controller('order-list')
 export class OrderListController {
-  constructor(private readonly orderListService: OrderListService) {}
+  constructor(private readonly orderListService: OrderListService) { }
 
   @Get('/planners')
-  async getPlanners(){
+  async getPlanners() {
     return await this.orderListService.getPlanner();
   }
-  
+
   @Get('lineupOrders')
-  async getLineup(){
+  async getLineup() {
     return await this.orderListService.getLineup();
   }
 
   @Get('fgOrders')
-  async getFg(){
+  async getFg() {
     return await this.orderListService.getFg();
   }
 
   @Get('deliveryorders')
-  async getDelivery(){
+  async getDelivery() {
     return await this.orderListService.getDelivery();
   }
 
   @Get('convertOrders')
-  async getConvert(){
+  async getConvert() {
     return await this.orderListService.getConvert();
   }
 
   @Post('/lineup')
-  updateToLineup(@Body() data: orderList[]){
+  updateToLineup(@Body() data: orderList[]) {
     const date = require('date-and-time')
-    data.forEach(element => {
-      let newData = {
-        lineup: true,
-        lineuptime: date.format(new Date(), 'YYYY/MM/DD HH:mm:ss'),
-        lastedited: date.format(new Date(), 'YYYY/MM/DD HH:mm:ss')
-      }
-      this.orderListService.lineup(element.id, newData)
-    });
+    try {
+      data.forEach(element => {
+        let newData = {
+          lineup: true,
+          lineuptime: date.format(new Date(), 'YYYY/MM/DD HH:mm:ss'),
+          lastedited: date.format(new Date(), 'YYYY/MM/DD HH:mm:ss')
+        }
+        this.orderListService.lineup(element.id, newData)
+      });
+    } catch (error) {
+      console.log("Overload")
+    }
+
   }
 
   @Post('/fg')
-  updateToFG(@Body() data: orderList[]){
+  updateToFG(@Body() data: orderList[]) {
     const date = require('date-and-time')
-    data.forEach(element => {
-      let newData = {
-        fg: true,
-        fgtime: date.format(new Date(), 'YYYY/MM/DD HH:mm:ss'),
-        lastedited: date.format(new Date(), 'YYYY/MM/DD HH:mm:ss')
-      }
-      this.orderListService.fg(element.id, newData)
-    });
+    try {
+      data.forEach(element => {
+        let newData = {
+          fg: true,
+          fgtime: date.format(new Date(), 'YYYY/MM/DD HH:mm:ss'),
+          lastedited: date.format(new Date(), 'YYYY/MM/DD HH:mm:ss')
+        }
+        this.orderListService.fg(element.id, newData)
+      });
+    } catch (error) {
+      console.log("Overload")
+    }
+
   }
 
   @Post('/convert')
-  updateToCon(@Body() data: orderList[]){
+  updateToCon(@Body() data: orderList[]) {
     const date = require('date-and-time')
-    data.forEach(element => {
-      let newData = {
-        converting: true,
-        converttime: date.format(new Date(), 'YYYY/MM/DD HH:mm:ss'),
-        lastedited: date.format(new Date(), 'YYYY/MM/DD HH:mm:ss')
-      }
-      this.orderListService.con(element.id, newData)
-    });
+    try {
+      data.forEach(element => {
+        let newData = {
+          converting: true,
+          converttime: date.format(new Date(), 'YYYY/MM/DD HH:mm:ss'),
+          lastedited: date.format(new Date(), 'YYYY/MM/DD HH:mm:ss')
+        }
+        this.orderListService.con(element.id, newData)
+      });
+    } catch (error) {
+      console.log("Overload")
+    }
+
   }
 
   @Post('/delivery')
-  updateToDelivery(@Body() data: orderList[]){
+  updateToDelivery(@Body() data: orderList[]) {
     const date = require('date-and-time')
-    data.forEach(element => {
-      let newData = {
-        delivery: true,
-        shipstatus: 'Queue',
-        lastedited: date.format(new Date(), 'YYYY/MM/DD HH:mm:ss')
-      }
-      this.orderListService.delivery(element.id, newData)
-    });
+    try {
+      data.forEach(element => {
+        let newData = {
+          delivery: true,
+          shipstatus: 'Queue',
+          lastedited: date.format(new Date(), 'YYYY/MM/DD HH:mm:ss')
+        }
+        this.orderListService.delivery(element.id, newData)
+      });
+    } catch (error) {
+      console.log("overload")
+    }
+
   }
 
   @Get('/getShipping/:id')
-  getShipping(@Param() orderid: number){
+  getShipping(@Param() orderid: number) {
     return this.orderListService.shipping(orderid);
   }
 
   @Post('/updateDelivery')
-  postDelivery(@Body() data: any){
+  postDelivery(@Body() data: any) {
     this.orderListService.updateAdd(data);
   }
 
   @Post('/updateShipping')
-  shippingUpdate(@Body() data: forDelivery){
+  shippingUpdate(@Body() data: forDelivery) {
     this.orderListService.updateShipping(data);
   }
 
   @Post('updateReject/:id')
-  updateReject(@Param('id') id:number, @Body() data: rejectList){
+  updateReject(@Param('id') id: number, @Body() data: rejectList) {
     let newData: rejectListDTO = {
       orderid: id,
       creasingr: data.creasingr,
@@ -119,12 +139,12 @@ export class OrderListController {
   }
 
   @Get('/getReject/:id')
-  getReject(@Param('id') id: number){
+  getReject(@Param('id') id: number) {
     return this.orderListService.getReject(id);
   }
 
   @Get('/getStatuses')
-  getOrderStatus(){
+  getOrderStatus() {
     return this.orderListService.getOrderStatus();
   }
 
@@ -134,16 +154,16 @@ export class OrderListController {
       dest: './csvFileUploaded'
     })
   )
-  async fileUploader(@UploadedFile() file: Express.Multer.File, @Res({passthrough: true}) responses: Response){
-      const csv = require('csv-parser')
-      const fs = require('fs')
-      const results = [];
-      let message = 'noError'
-      await fs.createReadStream(`./csvFileUploaded/${file.filename}`)
-        .pipe(csv())
-        .on('data', (data) => results.push(data))
-        .on('end', async () => {
-          this.orderListService.uploadFile(results)
+  async fileUploader(@UploadedFile() file: Express.Multer.File, @Res({ passthrough: true }) responses: Response) {
+    const csv = require('csv-parser')
+    const fs = require('fs')
+    const results = [];
+    let message = 'noError'
+    await fs.createReadStream(`./csvFileUploaded/${file.filename}`)
+      .pipe(csv())
+      .on('data', (data) => results.push(data))
+      .on('end', async () => {
+        this.orderListService.uploadFile(results)
       });
   }
 
@@ -163,8 +183,8 @@ export class OrderListController {
   }
 
   @Patch('/updateOrder/:id')
-  updateOrder(@Param('id') id: number, @Body() updateData: any){
-    if(updateData.prodqty){
+  updateOrder(@Param('id') id: number, @Body() updateData: any) {
+    if (updateData.prodqty) {
       let machineqtyU = {
         shipqty: updateData.prodqty,
         qty: updateData.qty,
@@ -172,13 +192,13 @@ export class OrderListController {
         comment: updateData.comment,
       }
       this.orderListService.updateProd(id, updateData.prodqty)
-      this.orderListService.update(id,machineqtyU)
+      this.orderListService.update(id, machineqtyU)
     }
-    else if(updateData.c || updateData.p || updateData.o || updateData.f){
+    else if (updateData.c || updateData.p || updateData.o || updateData.f) {
       console.log(updateData);
       // this.orderListService.update(id, updateData)
     }
-    else if(updateData.shipqty){
+    else if (updateData.shipqty) {
       let qtyUpdate = {
         shipqty: updateData.shipqty,
         qty: updateData.qty,
@@ -188,7 +208,7 @@ export class OrderListController {
       }
       this.orderListService.update(id, qtyUpdate)
     }
-    else{
+    else {
       this.orderListService.update(id, updateData)
     }
 
