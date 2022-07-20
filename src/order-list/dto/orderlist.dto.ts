@@ -1,4 +1,4 @@
-export class orderList{
+export class orderList {
     id?: number
     date: string
     po: string
@@ -13,6 +13,7 @@ export class orderList{
     delivery: boolean
     shipqty: number
     prodqty: number
+    pendingqty: number
     deliverydate: string
     comment: string
 }

@@ -7,6 +7,7 @@ import { Response, Express } from 'express';
 import { rejectList } from './entities/reject-list.entity';
 import { rejectListDTO } from './dto/rejectList.dto';
 import { forDelivery } from './entities/for-delivery.entity';
+import { itemRecords } from './entities/item.entity';
 @Controller('order-list')
 export class OrderListController {
   constructor(private readonly orderListService: OrderListService) { }
@@ -29,6 +30,11 @@ export class OrderListController {
   @Get('deliveryorders')
   async getDelivery() {
     return await this.orderListService.getDelivery();
+  }
+
+  @Get('getPicking')
+  async getPicking() {
+    return this.orderListService.getPacking()
   }
 
   @Get('convertOrders')
@@ -113,6 +119,16 @@ export class OrderListController {
     return this.orderListService.shipping(orderid);
   }
 
+  @Get('getVolume')
+  getVolume() {
+    return this.orderListService.getVolume()
+  }
+
+  @Post('/updateVolume/:id')
+  async updateData(@Param('id') id: number, @Body() data: any) {
+    this.orderListService.updateVolume(id, data);
+  }
+
   @Post('/updateDelivery')
   postDelivery(@Body() data: any) {
     this.orderListService.updateAdd(data);
@@ -136,6 +152,11 @@ export class OrderListController {
       comment: data.comment
     }
     return this.orderListService.updateReject(newData);
+  }
+
+  @Post('updatePending')
+  updatePending(@Body() data: any) {
+    this.orderListService.updatePending(data);
   }
 
   @Get('/getReject/:id')
@@ -195,8 +216,7 @@ export class OrderListController {
       this.orderListService.update(id, machineqtyU)
     }
     else if (updateData.c || updateData.p || updateData.o || updateData.f) {
-      console.log(updateData);
-      // this.orderListService.update(id, updateData)
+      this.orderListService.update(id, updateData)
     }
     else if (updateData.shipqty) {
       let qtyUpdate = {
@@ -205,6 +225,7 @@ export class OrderListController {
         itemdesc: updateData.itemdesc,
         comment: updateData.comment,
         prodqty: updateData.shipqty,
+        pendingqty: updateData.shipqty
       }
       this.orderListService.update(id, qtyUpdate)
     }

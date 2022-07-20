@@ -5,4 +5,5 @@ export class PackingDTO {
     capacity: number
     total: number
     percent: number
+    date: string
 }

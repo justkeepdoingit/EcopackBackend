@@ -3,18 +3,18 @@ import { PackingDetails } from "./packing-detail.entity"
 
 @Entity()
 export class PackingList {
-    @PrimaryGeneratedColumn()
+    @PrimaryColumn()
     id: number
-    @OneToMany(() => PackingDetails, (details) => details.pl)
-    pd: PackingDetails[]
     @Column({ nullable: true })
     name: string
     @Column({ nullable: true })
     truck: string
-    @Column({ nullable: true })
+    @Column({ nullable: true, type: 'double precision' })
     capacity: number
-    @Column({ nullable: true })
+    @Column({ nullable: true, type: 'double precision' })
     total: number
-    @Column({ nullable: true })
+    @Column({ nullable: true, type: 'double precision' })
     percent: number
+    @Column({ nullable: true, type: 'date' })
+    date: string
 }

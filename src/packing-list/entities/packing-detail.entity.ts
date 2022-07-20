@@ -1,9 +1,12 @@
-import { Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm"
-import { PackingList } from "./packing-list.entity"
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm"
 @Entity()
 export class PackingDetails {
     @PrimaryGeneratedColumn()
     id: number
-    @ManyToOne(() => PackingList, (pl) => pl.pd)
-    pl: PackingList
+    @Column()
+    plid: number
+    @Column()
+    orderid: number
+    @Column()
+    qtydeliver: number
 }

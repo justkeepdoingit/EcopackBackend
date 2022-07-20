@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { PackingListService } from './packing-list.service';
 import { PackingDTO } from './dto/create-packing-list.dto';
 import { packingUpdate } from './dto/update-packing-list.dto';
+import { truckDTO } from './dto/truckDto.dto';
 
 @Controller('packing-list')
 export class PackingListController {
@@ -15,6 +16,48 @@ export class PackingListController {
   @Get()
   findAll() {
     return this.packingListService.findAll();
+  }
+
+  @Post('saveTruck')
+  saveTruck(@Body() data: truckDTO) {
+    this.packingListService.saveTruck(data);
+  }
+
+  @Post('savePacking')
+  savePacking(@Body() data: any) {
+    let newData = data.data;
+
+    let pl: any[] = []
+
+    data.list.forEach(item => {
+      let pushData = {
+        orderid: item.orderid,
+        qtydeliver: item.qtydeliver
+      }
+      pl.push(pushData)
+    })
+
+    this.packingListService.savePacking(newData, pl)
+  }
+
+  @Get('getTrucks')
+  getTrucks() {
+    return this.packingListService.getTrucks()
+  }
+
+  @Get('findTruckInfo/:id')
+  getTruckInfos(@Param('id') id: number) {
+    return this.packingListService.findPl(id);
+  }
+
+  @Get('findTruck/:id')
+  findTrucks(@Param('id') data: number) {
+    return this.packingListService.findTruck(data)
+  }
+
+  @Delete('deletePacking/:id')
+  deletePacking(@Param('id') id: number) {
+    this.packingListService.deletePacking(id);
   }
 
   @Get(':id')
