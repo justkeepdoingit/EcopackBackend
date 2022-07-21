@@ -285,7 +285,6 @@ export class OrderListService {
   }
 
   async updateShipping(data: any) {
-    console.log(data);
     let shipStatus: any = {
       qtyship: data.qtyship,
       shipstatus: data.shipstatus,
