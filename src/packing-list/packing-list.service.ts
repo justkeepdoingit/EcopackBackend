@@ -47,6 +47,17 @@ export class PackingListService {
     this.trucks.save(data);
   }
 
+
+  async editPacking(truck: any, pl: any) {
+    this.pl.update(+truck.id, truck)
+    pl.forEach(data => {
+      let newData = {
+        qtydeliver: parseFloat(data.qtydeliver)
+      }
+      this.pld.update({ id: data.plid }, newData)
+    })
+  }
+
   async savePacking(truck: any, pl: any) {
     let id = await this.pl.createQueryBuilder().select('id').orderBy('id', 'DESC').limit(1).execute();
     let pldid = 1;
@@ -86,10 +97,9 @@ export class PackingListService {
   }
 
   async findPl(id: number) {
-    // let pld = await this.pld.find({ where: { plid: id } })
     let query = await this.orders.
       query(
-        `SELECT orders.id,orders.date,orders.po,orders.name,orders.item,orders.itemdesc,orders.qty,pld.qtydeliver,records.volume FROM packing_details as pld INNER JOIN order_list as orders ON pld.orderid=orders.id INNER JOIN item_records as records ON records.itemid=orders.item WHERE pld.plid = ${id}`
+        `SELECT pld.id,orders.date,orders.po,orders.name,orders.item,orders.itemdesc,orders.qty,pld.qtydeliver,records.volume FROM packing_details as pld INNER JOIN order_list as orders ON pld.orderid=orders.id INNER JOIN item_records as records ON records.itemid=orders.item WHERE pld.plid = ${id}`
       );
     return query
   }

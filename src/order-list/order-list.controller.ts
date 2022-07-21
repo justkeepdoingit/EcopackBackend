@@ -32,9 +32,9 @@ export class OrderListController {
     return await this.orderListService.getDelivery();
   }
 
-  @Get('getPicking')
-  async getPicking() {
-    return this.orderListService.getPacking()
+  @Get('getPicking/:sw')
+  async getPicking(@Param('sw') sw: number) {
+    return this.orderListService.getPacking(sw)
   }
 
   @Get('convertOrders')
@@ -119,14 +119,19 @@ export class OrderListController {
     return this.orderListService.shipping(orderid);
   }
 
+  @Get('/getShippingPl/:id')
+  getShippingPl(@Param() orderid: number) {
+    return this.orderListService.getShippingPl(orderid);
+  }
+
   @Get('getVolume')
   getVolume() {
     return this.orderListService.getVolume()
   }
 
-  @Post('/updateVolume/:id')
-  async updateData(@Param('id') id: number, @Body() data: any) {
-    this.orderListService.updateVolume(id, data);
+  @Post('/updateVolume/')
+  async updateData(@Body() data: any) {
+    this.orderListService.updateVolume(data);
   }
 
   @Post('/updateDelivery')
@@ -137,6 +142,11 @@ export class OrderListController {
   @Post('/updateShipping')
   shippingUpdate(@Body() data: forDelivery) {
     this.orderListService.updateShipping(data);
+  }
+
+  @Post('/updateShippingPl')
+  shippingUpdatePl(@Body() data: any) {
+    this.orderListService.updateShippingPl(data);
   }
 
   @Post('updateReject/:id')

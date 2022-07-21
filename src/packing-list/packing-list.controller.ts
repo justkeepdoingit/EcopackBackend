@@ -40,6 +40,11 @@ export class PackingListController {
     this.packingListService.savePacking(newData, pl)
   }
 
+  @Post('editPacking')
+  editPacking(@Body() data: any) {
+    this.packingListService.editPacking(data.data, data.list)
+  }
+
   @Get('getTrucks')
   getTrucks() {
     return this.packingListService.getTrucks()

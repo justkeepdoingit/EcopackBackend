@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Index, Repository } from 'typeorm';
+import { PackingDetails } from 'src/packing-list/entities/packing-detail.entity';
+import { Repository } from 'typeorm';
 import { deliveryDto } from './dto/delivery.dto';
 import { deliveryModel } from './dto/deliverymode.model';
-import { orderList } from './dto/orderlist.dto';
 import { rejectListDTO } from './dto/rejectList.dto';
 import { UpdateOrderListDto } from './dto/update-order-list.dto';
 import { forDelivery } from './entities/for-delivery.entity';
@@ -21,7 +21,9 @@ export class OrderListService {
     @InjectRepository(forDelivery)
     private fordelivery: Repository<forDelivery>,
     @InjectRepository(itemRecords)
-    private itemRecords: Repository<itemRecords>
+    private itemRecords: Repository<itemRecords>,
+    @InjectRepository(PackingDetails)
+    private readonly pld: Repository<PackingDetails>,
   ) {
 
   }
@@ -116,18 +118,15 @@ export class OrderListService {
     return this.itemRecords.find();
   }
 
-  async updateVolume(id: number, data: any) {
-    return this.itemRecords.update(+id, data);
+  async updateVolume(data: any) {
+    // return this.itemRecords.createQueryBuilder().update().
+    //   set({ volume: data.volume }).
+    //   where('itemid = :item', { item: data.itemid }).
+    //   execute()
+    return this.itemRecords.update({ itemid: data.itemid }, data)
   }
 
   async getDelivery() {
-
-    // let delivery = await this.orders.createQueryBuilder('orders').
-    // leftJoinAndSelect('orders.id','orderdata').
-    // leftJoinAndMapMany('orders.id',forDelivery,'fororders','orderdata.id=foroders.orderid').
-    // getMany();
-
-    // console.log(delivery);
 
     let delivery: any = await this.orders.createQueryBuilder('orders').
       innerJoinAndSelect('orders.id', 'delivery').
@@ -206,36 +205,48 @@ export class OrderListService {
     this.orders.update(+data.id, update);
   }
 
-  async getPacking() {
+  async getPacking(sw: number) {
+    let query: any;
+    if (sw == 1) {
+      query = await this.orders.
+        query(
+          `SELECT SUM(details.qtydeliver) as qtydeliver, list.prodqty, list.id, list.date, list.so, list.po, list.name, list.item, list.itemdesc, list.qty, list.pendingqty, MAX(item.volume) as volume FROM order_list AS list LEFT JOIN item_records AS item ON list.item=item.itemid LEFT JOIN packing_details as details ON details.orderid=list.id WHERE list.delivery = true AND (list.shipstatus = 'Queue' OR list.shipstatus = 'Partial Delivery')  GROUP BY list.id`
+        );
+    }
+    else {
+      query = await this.orders.
+        query(
+          `SELECT SUM(details.qtydeliver) as qtydeliver, list.prodqty, list.id, list.date, list.so, list.po, list.name, list.item, list.itemdesc, list.qty,list.shipstatus, list.pendingqty, MAX(item.volume) as volume FROM order_list AS list LEFT JOIN item_records AS item ON list.item=item.itemid LEFT JOIN packing_details as details ON details.orderid=list.id GROUP BY list.id`
+        );
+    }
 
-    let query = await this.orders.
-      query(
-        'SELECT SUM(details.qtydeliver) as qtydeliver, list.prodqty, list.id, list.date, list.so, list.po, list.name, list.item, list.itemdesc, list.qty, list.pendingqty, MAX(item.volume) as volume FROM order_list AS list LEFT JOIN item_records AS item ON list.item=item.itemid LEFT JOIN packing_details as details ON details.orderid=list.id WHERE list.delivery = true GROUP BY list.id'
-      );
     let queryData: any[] = []
     let i = 0;
-    let qty = 0;
     query.forEach(t => {
       let partial = {}
-
-      let filter = queryData.filter(data => {
+      queryData.filter(data => {
         if (data.id == t.id && data.volume == 0) {
           queryData.splice(i, 1)
         }
       })
-      // qty += t.qtydeliver;
-      partial = {
-        id: t.id,
-        date: t.date,
-        so: t.so,
-        po: t.po,
-        name: t.name,
-        item: t.item,
-        itemdesc: t.itemdesc,
-        qty: t.qty,
-        pendingqty: (t.pendingqty - t.qtydeliver),
-        volume: t.volume,
-        volumet: (t.pendingqty * t.volume)
+      let qtys = t.qtydeliver == null ? 0 : parseInt(t.qtydeliver);
+      if (t.shipstatus == 'Delivery Complete') {
+        return
+      }
+      else {
+        partial = {
+          id: t.id,
+          date: t.date,
+          so: t.so,
+          po: t.po,
+          name: t.name,
+          item: t.item,
+          itemdesc: t.itemdesc,
+          qty: t.qty,
+          pendingqty: (t.pendingqty - qtys),
+          volume: t.volume,
+          volumet: (t.pendingqty * t.volume)
+        }
       }
       queryData.push(partial)
       i++
@@ -249,7 +260,8 @@ export class OrderListService {
       orderid: data.orderid,
       itemid: data.itemid,
       qtyship: data.qty,
-      shipstatus: data.status
+      shipstatus: data.status,
+      deliverydate: data.deliverydate
     }
 
     let updateStatus = {
@@ -273,9 +285,11 @@ export class OrderListService {
   }
 
   async updateShipping(data: any) {
+    console.log(data);
     let shipStatus: any = {
       qtyship: data.qtyship,
-      shipstatus: data.shipstatus
+      shipstatus: data.shipstatus,
+      deliverydate: data.deliverydate
     }
 
     let updateStatus = {
@@ -286,6 +300,15 @@ export class OrderListService {
     this.orders.update({ id: data.orderid }, updateStatus)
   }
 
+  async updateShippingPl(data: any) {
+    let shipStatus: any = {
+      qtyship: data.qtyship,
+      shipstatus: data.shipstatus,
+      deliverydate: data.deliverydate,
+    }
+    this.fordelivery.update({ id: data.id }, shipStatus)
+  }
+
   async shipping(orderid: any) {
     let data = await this.fordelivery.createQueryBuilder().
       where('orderid = :id', {
@@ -293,6 +316,18 @@ export class OrderListService {
       }).execute()
 
     return data;
+  }
+
+  async getShippingPl(id: any) {
+    let query = await this.orders.query(`SELECT dl.receipt as receipt,dl.id as id,ol.id as orderid, ol.so as so,ol.po as po,ol.name as name,ol.item as item,
+        ol.itemdesc as itemdesc, dl.qtyship as qtyship, ol.shipstatus as shipstatus
+        FROM packing_details as ds LEFT JOIN order_list as ol
+        ON ol.id=ds.orderid LEFT JOIN for_delivery as dl ON dl.orderid=ol.id AND dl.orderid=ds.orderid
+        WHERE ds.plid = ${id.id}
+      `)
+
+    return query;
+
   }
 
   async getReject(id: number) {
