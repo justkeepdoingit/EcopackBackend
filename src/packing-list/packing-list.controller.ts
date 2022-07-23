@@ -60,6 +60,21 @@ export class PackingListController {
     return this.packingListService.findTruck(data)
   }
 
+  @Patch('updatePrio/:id')
+  updatePrio(@Param('id') id: number, @Body() data: any) {
+    return this.packingListService.updatePrio(id, data)
+  }
+
+  @Delete('deletePld/:id')
+  deletePld(@Param('id') id: number) {
+    this.packingListService.deletePld(id)
+  }
+
+  @Post('savePld')
+  savePld(@Body() data: any) {
+    this.packingListService.savePld(data);
+  }
+
   @Delete('deletePacking/:id')
   deletePacking(@Param('id') id: number) {
     this.packingListService.deletePacking(id);

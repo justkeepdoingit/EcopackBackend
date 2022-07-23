@@ -43,10 +43,17 @@ export class PackingListService {
     return await this.trucks.findOne({ where: { id: data } });
   }
 
+  deletePld(data: number) {
+    this.pld.delete(+data);
+  }
+
   async saveTruck(data: truckDTO) {
     this.trucks.save(data);
   }
 
+  savePld(data: any) {
+    this.pld.save(data);
+  }
 
   async editPacking(truck: any, pl: any) {
     this.pl.update(+truck.id, truck)
@@ -99,9 +106,17 @@ export class PackingListService {
   async findPl(id: number) {
     let query = await this.orders.
       query(
-        `SELECT pld.id,orders.date,orders.po,orders.name,orders.item,orders.itemdesc,orders.qty,pld.qtydeliver,records.volume FROM packing_details as pld INNER JOIN order_list as orders ON pld.orderid=orders.id INNER JOIN item_records as records ON records.itemid=orders.item WHERE pld.plid = ${id}`
+        `SELECT pld.plid as plid, pld.prio as prio, pld.id,orders.date,orders.po,orders.name,orders.item,orders.itemdesc,orders.qty,pld.qtydeliver,records.volume 
+         FROM packing_details as pld
+         INNER JOIN order_list as orders ON pld.orderid=orders.id
+         INNER JOIN item_records as records ON records.itemid=orders.item 
+         WHERE pld.plid = ${id} ORDER BY pld.prio ASC`
       );
     return query
+  }
+
+  async updatePrio(id: number, data: any) {
+    this.pld.update(+id, data);
   }
 
   update(id: number, updatePackingListDto: packingUpdate) {

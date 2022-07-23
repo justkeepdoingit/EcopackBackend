@@ -300,13 +300,33 @@ export class OrderListService {
   }
 
   async updateShippingPl(data: any) {
-    let shipStatus: any = {
-      qtyship: data.qtyship,
-      shipstatus: data.shipstatus,
-      deliverydate: data.deliverydate,
+    if (data.id) {
+      let shipStatus: any = {
+        qtyship: data.qtyship,
+        shipstatus: data.shipstatus,
+        deliverydate: data.deliverydate,
+      }
+      this.fordelivery.update({ id: data.id }, shipStatus)
     }
-    console.log(data);
-    this.fordelivery.update({ id: data.id }, shipStatus)
+    else {
+      let delivery = {
+        orderid: data.orderid,
+        itemid: data.itemid,
+        qtyship: data.qtyship,
+        shipstatus: data.shipstatus,
+        receipt: data.receipt,
+        deliverydate: data.deliverydate,
+        orderidId: data.orderid
+      }
+      this.fordelivery.save(delivery)
+    }
+
+
+    let qtyUpdate = {
+      qtydeliver: data.qtyship
+    }
+
+    this.pld.update({ id: data.pl }, qtyUpdate)
   }
 
   async shipping(orderid: any) {
@@ -320,7 +340,7 @@ export class OrderListService {
 
   async getShippingPl(id: any) {
     let query = await this.orders.query(`SELECT dl.receipt as receipt,dl.id as id,ol.id as orderid, ol.so as so,ol.po as po,ol.name as name,ol.item as item,
-        ol.itemdesc as itemdesc, dl.qtyship as qtyship, dl.shipstatus as shipstatus
+        ol.itemdesc as itemdesc, ds.qtydeliver as qtyship, ds.id as pl, dl.shipstatus as shipstatus
         FROM packing_details as ds LEFT JOIN order_list as ol
         ON ol.id=ds.orderid LEFT JOIN for_delivery as dl ON dl.orderid=ol.id AND dl.orderid=ds.orderid
         WHERE ds.plid = ${id.id}

@@ -9,4 +9,6 @@ export class PackingDetails {
     orderid: number
     @Column()
     qtydeliver: number
+    @Column({ nullable: true })
+    prio: number
 }
