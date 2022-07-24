@@ -13,9 +13,9 @@ export class PackingListController {
     return this.packingListService.create(createPackingListDto);
   }
 
-  @Get()
-  findAll() {
-    return this.packingListService.findAll();
+  @Get('/:sw')
+  findAll(@Param('sw') sw: number) {
+    return this.packingListService.findAll(sw);
   }
 
   @Post('saveTruck')
@@ -60,6 +60,11 @@ export class PackingListController {
     return this.packingListService.findTruck(data)
   }
 
+  @Patch('printed/:id')
+  updatePrinted(@Param('id') pl: number) {
+    this.packingListService.updatePl(pl);
+  }
+
   @Patch('updatePrio/:id')
   updatePrio(@Param('id') id: number, @Body() data: any) {
     return this.packingListService.updatePrio(id, data)
@@ -69,7 +74,6 @@ export class PackingListController {
   deletePld(@Param('id') id: number) {
     this.packingListService.deletePld(id)
   }
-
   @Post('savePld')
   savePld(@Body() data: any) {
     this.packingListService.savePld(data);

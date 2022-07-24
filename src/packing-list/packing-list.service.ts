@@ -26,8 +26,10 @@ export class PackingListService {
     return 'This action adds a new packingList';
   }
 
-  async findAll() {
-    return await this.pl.find()
+  async findAll(sw: number) {
+    if (sw == 1) return await this.pl.find({ where: { printed: 0 } })
+    return await this.pl.find({ where: { printed: 1 } })
+
   }
 
   async getTrucks() {
@@ -49,6 +51,13 @@ export class PackingListService {
 
   async saveTruck(data: truckDTO) {
     this.trucks.save(data);
+  }
+
+  async updatePl(id: number) {
+    let printed = {
+      printed: 1
+    }
+    this.pl.update({ id: id }, printed);
   }
 
   savePld(data: any) {

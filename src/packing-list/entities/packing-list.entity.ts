@@ -17,4 +17,6 @@ export class PackingList {
     percent: number
     @Column({ nullable: true, type: 'date' })
     date: string
+    @Column({ default: 0 })
+    printed: number
 }

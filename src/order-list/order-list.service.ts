@@ -319,6 +319,15 @@ export class OrderListService {
         orderidId: data.orderid
       }
       this.fordelivery.save(delivery)
+
+      let updateOrder = {
+        lineup: true,
+        converting: true,
+        fg: true,
+        delivery: true,
+        shipstatus: 'Partial Delivery'
+      }
+      this.orders.update({ id: data.orderid }, updateOrder)
     }
 
 
@@ -347,9 +356,9 @@ export class OrderListService {
       `)
     let returnData: any[] = [];
     query.forEach(data => {
-      if (data.shipstatus == 'Delivery Complete') {
-        return
-      }
+      // if (data.shipstatus == 'Delivery Complete') {
+      //   return
+      // }
       returnData.push(data);
     })
 
