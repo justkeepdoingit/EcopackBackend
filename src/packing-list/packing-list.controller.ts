@@ -18,6 +18,11 @@ export class PackingListController {
     return this.packingListService.findAll(sw);
   }
 
+  @Get()
+  getTrucks2() {
+    return this.packingListService.getTrucks()
+  }
+
   @Post('saveTruck')
   saveTruck(@Body() data: truckDTO) {
     this.packingListService.saveTruck(data);
