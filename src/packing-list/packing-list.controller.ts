@@ -56,7 +56,7 @@ export class PackingListController {
   }
 
   @Get('findTruckInfo/:id')
-  getTruckInfos(@Param('id') id: number) {
+  findPl(@Param('id') id: number) {
     return this.packingListService.findPl(id);
   }
 
@@ -70,9 +70,9 @@ export class PackingListController {
     this.packingListService.updatePl(pl);
   }
 
-  @Patch('updatePrio/:id')
-  updatePrio(@Param('id') id: number, @Body() data: any) {
-    return this.packingListService.updatePrio(id, data)
+  @Patch('updatePrio')
+  updatePrio(@Body() data: any) {
+    return this.packingListService.updatePrio(data)
   }
 
   @Delete('deletePld/:id')

@@ -124,8 +124,10 @@ export class PackingListService {
     return query
   }
 
-  async updatePrio(id: number, data: any) {
-    this.pld.update(+id, data);
+  async updatePrio(data: any) {
+    data.forEach(datas => {
+      this.pld.update(+datas.id, datas);
+    })
   }
 
   update(id: number, updatePackingListDto: packingUpdate) {
