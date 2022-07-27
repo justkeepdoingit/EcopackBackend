@@ -65,7 +65,7 @@ export class PackingListController {
     return this.packingListService.findTruck(data)
   }
 
-  @Patch('printed/:id')
+  @Get('printed/:id')
   updatePrinted(@Param('id') pl: number) {
     this.packingListService.updatePl(pl);
   }
