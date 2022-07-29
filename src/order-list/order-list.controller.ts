@@ -146,7 +146,7 @@ export class OrderListController {
 
   @Post('/updateShippingPl')
   shippingUpdatePl(@Body() data: any) {
-    this.orderListService.updateShippingPl(data);
+    return this.orderListService.updateShippingPl(data);
   }
 
   @Post('updateReject/:id')

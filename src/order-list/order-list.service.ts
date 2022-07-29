@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PackingDetails } from 'src/packing-list/entities/packing-detail.entity';
+import { PackingList } from 'src/packing-list/entities/packing-list.entity';
 import { Repository } from 'typeorm';
 import { deliveryDto } from './dto/delivery.dto';
 import { deliveryModel } from './dto/deliverymode.model';
@@ -23,7 +24,7 @@ export class OrderListService {
     @InjectRepository(itemRecords)
     private itemRecords: Repository<itemRecords>,
     @InjectRepository(PackingDetails)
-    private readonly pld: Repository<PackingDetails>,
+    private readonly pld: Repository<PackingDetails>
   ) {
 
   }
@@ -300,42 +301,46 @@ export class OrderListService {
   }
 
   async updateShippingPl(data: any) {
-    if (data.id) {
-      let shipStatus: any = {
-        qtyship: data.qtyship,
-        shipstatus: data.shipstatus,
-        deliverydate: data.deliverydate,
+    data.forEach(data => {
+      if (data.id) {
+        let shipStatus: any = {
+          receipt: data.receipt,
+          qtyship: data.qtyship,
+          shipstatus: data.shipstatus,
+          deliverydate: data.deliverydate,
+        }
+        this.fordelivery.update({ id: data.id }, shipStatus)
       }
-      this.fordelivery.update({ id: data.id }, shipStatus)
-    }
-    else {
-      let delivery = {
-        orderid: data.orderid,
-        itemid: data.itemid,
-        qtyship: data.qtyship,
-        shipstatus: data.shipstatus,
-        receipt: data.receipt,
-        deliverydate: data.deliverydate,
-        orderidId: data.orderid
+      else {
+        let delivery = {
+          orderid: data.orderid,
+          itemid: data.itemid,
+          qtyship: data.qtyship,
+          shipstatus: data.shipstatus,
+          receipt: data.receipt,
+          deliverydate: data.deliverydate,
+          orderidId: data.orderid
+        }
+        this.fordelivery.save(delivery)
+
+        let updateOrder = {
+          lineup: true,
+          converting: true,
+          fg: true,
+          delivery: true,
+          shipstatus: 'Partial Delivery'
+        }
+        this.orders.update({ id: data.orderid }, updateOrder)
       }
-      this.fordelivery.save(delivery)
 
-      let updateOrder = {
-        lineup: true,
-        converting: true,
-        fg: true,
-        delivery: true,
-        shipstatus: 'Partial Delivery'
+      let qtyUpdate = {
+        qtydeliver: data.qtyship
       }
-      this.orders.update({ id: data.orderid }, updateOrder)
-    }
 
-
-    let qtyUpdate = {
-      qtydeliver: data.qtyship
-    }
-
-    this.pld.update({ id: data.pl }, qtyUpdate)
+      this.pld.update({ id: data.pl }, qtyUpdate)
+    })
+    let plid = await this.pld.findOne({ where: { id: data[0].pl } })
+    return this.getShippingPl({ id: plid.plid });
   }
 
   async shipping(orderid: any) {
@@ -361,7 +366,6 @@ export class OrderListService {
       // }
       returnData.push(data);
     })
-
     return returnData;
 
   }
