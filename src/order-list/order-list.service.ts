@@ -310,6 +310,7 @@ export class OrderListService {
           deliverydate: data.deliverydate,
         }
         this.fordelivery.update({ id: data.id }, shipStatus)
+        console.log("updated!");
       }
       else {
         let delivery = {
@@ -340,7 +341,9 @@ export class OrderListService {
       this.pld.update({ id: data.pl }, qtyUpdate)
     })
     let plid = await this.pld.findOne({ where: { id: data[0].pl } })
-    return this.getShippingPl({ id: plid.plid });
+
+    console.log("service", await this.getShippingPl({ id: plid.plid }))
+    return await this.getShippingPl({ id: plid.plid });
   }
 
   async shipping(orderid: any) {
@@ -361,13 +364,9 @@ export class OrderListService {
       `)
     let returnData: any[] = [];
     query.forEach(data => {
-      // if (data.shipstatus == 'Delivery Complete') {
-      //   return
-      // }
       returnData.push(data);
     })
     return returnData;
-
   }
 
   async getReject(id: number) {

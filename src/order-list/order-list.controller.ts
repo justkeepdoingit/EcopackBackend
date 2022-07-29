@@ -145,8 +145,8 @@ export class OrderListController {
   }
 
   @Post('/updateShippingPl')
-  shippingUpdatePl(@Body() data: any) {
-    return this.orderListService.updateShippingPl(data);
+  async shippingUpdatePl(@Body() data: any) {
+    return await this.orderListService.updateShippingPl(data);
   }
 
   @Post('updateReject/:id')
