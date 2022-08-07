@@ -8,6 +8,7 @@ import { rejectList } from './entities/reject-list.entity';
 import { rejectListDTO } from './dto/rejectList.dto';
 import { forDelivery } from './entities/for-delivery.entity';
 import { itemRecords } from './entities/item.entity';
+import { returnList } from './entities/returnEntity.entity';
 @Controller('order-list')
 export class OrderListController {
   constructor(private readonly orderListService: OrderListService) { }
@@ -49,9 +50,11 @@ export class OrderListController {
       data.forEach(element => {
         let newData = {
           lineup: true,
-          lineuptime: date.format(new Date(), 'YYYY/MM/DD HH:mm:ss'),
-          lastedited: date.format(new Date(), 'YYYY/MM/DD HH:mm:ss')
+          lineuptime: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss'),
+          lastedited: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss'),
+          orderstatus: 'Lineup'
         }
+        // console.log(newData);
         this.orderListService.lineup(element.id, newData)
       });
     } catch (error) {
@@ -67,8 +70,9 @@ export class OrderListController {
       data.forEach(element => {
         let newData = {
           fg: true,
-          fgtime: date.format(new Date(), 'YYYY/MM/DD HH:mm:ss'),
-          lastedited: date.format(new Date(), 'YYYY/MM/DD HH:mm:ss')
+          fgtime: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss'),
+          lastedited: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss'),
+          orderstatus: 'Finished Goods'
         }
         this.orderListService.fg(element.id, newData)
       });
@@ -85,8 +89,9 @@ export class OrderListController {
       data.forEach(element => {
         let newData = {
           converting: true,
-          converttime: date.format(new Date(), 'YYYY/MM/DD HH:mm:ss'),
-          lastedited: date.format(new Date(), 'YYYY/MM/DD HH:mm:ss')
+          converttime: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss'),
+          lastedited: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss'),
+          orderstatus: 'Converting'
         }
         this.orderListService.con(element.id, newData)
       });
@@ -104,7 +109,9 @@ export class OrderListController {
         let newData = {
           delivery: true,
           shipstatus: 'Queue',
-          lastedited: date.format(new Date(), 'YYYY/MM/DD HH:mm:ss')
+          deliverytime: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss'),
+          lastedited: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss'),
+          orderstatus: 'Delivery'
         }
         this.orderListService.delivery(element.id, newData)
       });
@@ -117,6 +124,11 @@ export class OrderListController {
   @Get('/getShipping/:id')
   getShipping(@Param() orderid: number) {
     return this.orderListService.shipping(orderid);
+  }
+
+  @Get('/getShippingReturn/:id')
+  getShippingReturn(@Param() orderid: number) {
+    return this.orderListService.shippingReturn(orderid);
   }
 
   @Get('/getShippingPl/:id')
@@ -159,7 +171,7 @@ export class OrderListController {
       finishr: data.finishr,
       corr: data.corr,
       corl: data.corl,
-      comment: data.comment
+      comment: data.comment,
     }
     return this.orderListService.updateReject(newData);
   }
@@ -198,9 +210,61 @@ export class OrderListController {
       });
   }
 
+  @Get('findDr/:receipt')
+  findDr(@Param('receipt') dr: string) {
+    return this.orderListService.findDr(dr);
+  }
+
+  @Post('saveReturn')
+  saveReturn(@Body() data: any) {
+    data.forEach(returnItems => {
+      this.orderListService.saveReturn(returnItems)
+    })
+  }
+
+  @Post('updateWhole')
+  updateWholeData(@Body() updateData: any) {
+    const date = require('date-and-time')
+    let newUpdate = {
+      id: updateData.id,
+      date: updateData.date,
+      po: updateData.po,
+      so: updateData.so,
+      name: updateData.name,
+      item: updateData.item,
+      itemdesc: updateData.itemdesc,
+      qty: updateData.qty,
+      prodqty: updateData.prodqty,
+      lastedited: updateData.lastedited,
+      shipstatus: updateData.shipstatus,
+      // receipt: updateData.receipt,
+      // qtydeliver: updateData.qtydeliver,
+      deliverydate: updateData.deliverydate,
+      lineup: updateData.lineup,
+      converting: updateData.converting,
+      fg: updateData.fg,
+      delivery: updateData.delivery
+    }
+    this.orderListService.update(newUpdate.id, newUpdate)
+  }
+
   @Get()
   findAll() {
     return this.orderListService.findAll();
+  }
+
+  @Get('exportData')
+  exportCsv() {
+    return this.orderListService.exportData()
+  }
+
+  @Post('deleteData')
+  deleteData(@Body() orders: any) {
+
+    orders.forEach(element => {
+      this.orderListService.remove(element.id);
+    });
+
   }
 
   @Get(':id')
@@ -226,7 +290,19 @@ export class OrderListController {
       this.orderListService.update(id, machineqtyU)
     }
     else if (updateData.c || updateData.p || updateData.o || updateData.f) {
-      this.orderListService.update(id, updateData)
+      const date = require('date-and-time')
+      let cpofTime = {
+        creasingtime: updateData.c ? date.format(new Date(), 'YYYY-MM-DD HH:mm:ss') : null,
+        printingtime: updateData.p ? date.format(new Date(), 'YYYY-MM-DD HH:mm:ss') : null,
+        dcrtime: updateData.o ? date.format(new Date(), 'YYYY-MM-DD HH:mm:ss') : null,
+        finishrtime: updateData.f ? date.format(new Date(), 'YYYY-MM-DD HH:mm:ss') : null,
+        c: updateData.c,
+        p: updateData.p,
+        o: updateData.o,
+        f: updateData.f
+      }
+      // console.log(cpofTime);
+      this.orderListService.update(id, cpofTime)
     }
     else if (updateData.shipqty) {
       let qtyUpdate = {

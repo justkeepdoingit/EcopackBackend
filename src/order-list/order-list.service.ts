@@ -11,6 +11,7 @@ import { forDelivery } from './entities/for-delivery.entity';
 import { itemRecords } from './entities/item.entity';
 import { OrderList } from './entities/order-list.entity';
 import { rejectList } from './entities/reject-list.entity';
+import { returnList } from './entities/returnEntity.entity';
 @Injectable()
 export class OrderListService {
 
@@ -23,6 +24,8 @@ export class OrderListService {
     private fordelivery: Repository<forDelivery>,
     @InjectRepository(itemRecords)
     private itemRecords: Repository<itemRecords>,
+    @InjectRepository(returnList)
+    private returnlist: Repository<returnList>,
     @InjectRepository(PackingDetails)
     private readonly pld: Repository<PackingDetails>
   ) {
@@ -46,7 +49,8 @@ export class OrderListService {
             name: item.Name,
             item: item.Item,
             itemdesc: item['Item Description'],
-            qty: Math.abs(parseInt(item.Qty))
+            qty: Math.abs(parseInt(item.Qty)),
+            orderstatus: 'Planner'
           }
           saveData.push(newData);
         }
@@ -355,6 +359,20 @@ export class OrderListService {
     return data;
   }
 
+  async shippingReturn(id: any) {
+    let query = await this.returnlist.query
+      (`SELECT fd.deliverydate as deliverydate, fd.qtyship as qtyship, rl.receipt as receipt, rl.qtyreturn as qtyreturn, rl.reason as reason
+      FROM for_delivery as fd LEFT JOIN return_list as rl ON fd.orderid=rl.orderid WHERE rl.orderid = ${id.id}
+    `)
+
+    let returnData: any[] = [];
+    query.forEach(data => {
+      returnData.push(data);
+    })
+    return returnData;
+  }
+
+
   async getShippingPl(id: any) {
     let query = await this.orders.query(`SELECT dl.receipt as receipt,dl.id as id,ol.id as orderid, ol.so as so,ol.po as po,ol.name as name,ol.item as item,
         ol.itemdesc as itemdesc, ds.qtydeliver as qtyship, ds.id as pl, dl.shipstatus as shipstatus
@@ -375,6 +393,14 @@ export class OrderListService {
         id: id
       }).getOne()
     return rejects;
+  }
+
+  updateRejectTime(id: number, rejectTime: any) {
+    try {
+      this.reject.update(+id, rejectTime);
+    } catch (err) {
+      return 'No Records For Reject Yet'
+    }
   }
 
   async updateReject(data: rejectListDTO) {
@@ -425,18 +451,70 @@ export class OrderListService {
   }
 
   findAll() {
-    return `This action returns all orderList`;
+    return this.orders.find();
   }
 
   findOne(id: number) {
     return `This action returns a #${id} orderList`;
   }
 
-  update(id: number, updateData: UpdateOrderListDto) {
+  update(id: number, updateData: any) {
     return this.orders.update(id, updateData)
   }
 
+  exportData() {
+    var text = "";
+    var charset = "abcdefghijklmnopqrstuvwxyz0123456789";
+    for (var i = 0; i <= 10; i++) {
+      text += charset.charAt(Math.floor(Math.random() * charset.length));
+    }
+    const date = new Date()
+    const utc = date.toDateString()
+    this.orders.query(`COPY order_list TO 'C:/tmp/${text}_${utc}.CSV' DELIMITER ',' CSV HEADER`)
+
+    setTimeout(() => {
+      var fs = require('fs')
+
+      var oldPath = `C:/tmp/${text}_${utc}.CSV`
+      var newPath = `C:/Users/amanc/Documents/Angular-Project/ecopack/ecopack-frontend/src/assets/${text}_${utc}.CSV`
+
+      fs.rename(oldPath, newPath, function (err) {
+        if (err) throw err
+        // console.log('Successfully renamed - AKA moved!')
+      })
+    }, 300);
+
+
+    return [`${text}_${utc}.CSV`]
+  }
+
+  async findDr(dr: string) {
+    // let drRecord = await this.fordelivery.find({ where: { receipt: dr } });
+    let drRecord = await this.fordelivery.query(`
+    SELECT ol.name as name, ol.item as item, fd.qtyship as qtyship, ol.id as orderid, rl.qtyreturn as qtyreturn, rl.reason as reason, rl.action as action, rl.returndate as returndate
+    FROM order_list as ol LEFT JOIN for_delivery as fd ON 
+    fd.orderid=ol.id LEFT JOIN return_list as rl ON fd.orderid=rl.orderid
+    WHERE fd.receipt = '${dr}'
+    `)
+    if (drRecord) {
+      return drRecord
+    }
+    else {
+      return null
+    }
+  }
+
+  async saveReturn(returnItems: returnList) {
+    let checking = await this.returnlist.findOne({ where: { orderid: returnItems.orderid } });
+    if (checking) {
+      this.returnlist.update({ orderid: returnItems.orderid, receipt: returnItems.receipt }, returnItems);
+    }
+    else {
+      this.returnlist.save(returnItems);
+    }
+  }
+
   remove(id: number) {
-    return `This action removes a #${id} orderList`;
+    this.orders.delete(id);
   }
 }

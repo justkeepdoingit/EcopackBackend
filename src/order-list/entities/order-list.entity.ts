@@ -38,14 +38,16 @@ export class OrderList {
     deliverydate: string
     @Column({ nullable: true })
     comment: string
-    @Column({ nullable: true, type: 'date' })
+    @Column({ nullable: true, type: 'timestamp' })
     lineuptime: string
-    @Column({ nullable: true, type: 'date' })
+    @Column({ nullable: true, type: 'timestamp' })
     converttime: string
-    @Column({ nullable: true, type: 'date' })
+    @Column({ nullable: true, type: 'timestamp' })
     fgtime: string
-    @Column({ nullable: true, type: 'date' })
+    @Column({ nullable: true, type: 'timestamp' })
     lastedited: string
+    @Column({ nullable: true, type: 'timestamp' })
+    deliverytime: string
     @Column({ default: false })
     c: boolean
     @Column({ default: false })
@@ -56,4 +58,14 @@ export class OrderList {
     f: boolean
     @Column({ nullable: true })
     shipstatus: string
+    @Column({ nullable: true })
+    orderstatus: string
+    @Column({ nullable: true, type: 'timestamp' })
+    creasingtime: string
+    @Column({ nullable: true, type: 'timestamp' })
+    printingtime: string
+    @Column({ nullable: true, type: 'timestamp' })
+    dcrtime: string
+    @Column({ nullable: true, type: 'timestamp' })
+    finishrtime: string
 }

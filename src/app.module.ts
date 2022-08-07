@@ -13,6 +13,7 @@ import { PackingListModule } from './packing-list/packing-list.module';
 import { PackingList } from './packing-list/entities/packing-list.entity';
 import { PackingDetails } from './packing-list/entities/packing-detail.entity';
 import { truckDetails } from './packing-list/entities/truck-details.entity';
+import { returnList } from './order-list/entities/returnEntity.entity';
 @Module({
   // imports: [UserAccountModule, TypeOrmModule.forRoot({
   //   type: 'postgres',
@@ -22,7 +23,7 @@ import { truckDetails } from './packing-list/entities/truck-details.entity';
   //   username: 'postgres',
   //   password: 'jollibeespaghetti',
   //   database: 'ecopack',
-  //   entities: [UserAccount, OrderList, rejectList, forDelivery, itemRecords, PackingList, PackingDetails, truckDetails],
+  //   entities: [UserAccount, OrderList, rejectList, forDelivery, itemRecords, PackingList, PackingDetails, truckDetails, returnList],
   //   synchronize: true,
   // }), OrderListModule, UserAccountModule, PackingListModule],
   imports: [UserAccountModule, TypeOrmModule.forRoot({
@@ -34,7 +35,7 @@ import { truckDetails } from './packing-list/entities/truck-details.entity';
     password: '259e81d484a4a9c2d699006d1e812cea64d7600a44f1d2425c6d465974221fa8',
     database: 'dastnkhi36oees',
     url: 'postgres://mgbozfolocxpeo:259e81d484a4a9c2d699006d1e812cea64d7600a44f1d2425c6d465974221fa8@ec2-44-205-41-76.compute-1.amazonaws.com:5432/dastnkhi36oees',
-    entities: [UserAccount, OrderList, rejectList, forDelivery, itemRecords, PackingList, PackingDetails, truckDetails],
+    entities: [UserAccount, OrderList, rejectList, forDelivery, itemRecords, PackingList, PackingDetails, truckDetails, returnList],
     synchronize: true,
     ssl: {
       rejectUnauthorized: false,

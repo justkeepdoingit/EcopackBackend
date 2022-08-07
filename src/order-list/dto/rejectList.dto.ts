@@ -1,4 +1,4 @@
-export class rejectListDTO{
+export class rejectListDTO {
     id?: number
     orderid: number
     creasingr: number

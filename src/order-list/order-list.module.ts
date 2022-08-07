@@ -7,9 +7,10 @@ import { rejectList } from './entities/reject-list.entity';
 import { forDelivery } from './entities/for-delivery.entity';
 import { itemRecords } from './entities/item.entity';
 import { PackingDetails } from 'src/packing-list/entities/packing-detail.entity';
+import { returnList } from './entities/returnEntity.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([OrderList, rejectList, forDelivery, itemRecords, PackingDetails])],
+  imports: [TypeOrmModule.forFeature([OrderList, rejectList, forDelivery, itemRecords, PackingDetails, returnList])],
   controllers: [OrderListController],
   providers: [OrderListService]
 })

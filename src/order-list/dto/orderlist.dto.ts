@@ -15,5 +15,10 @@ export class orderList {
     prodqty: number
     pendingqty: number
     deliverydate: string
+    deliverytime: string
     comment: string
+    creasingtime?: string
+    printingtime?: string
+    dcrtime?: string
+    finishrtime?: string
 }
