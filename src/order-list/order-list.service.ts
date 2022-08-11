@@ -314,7 +314,11 @@ export class OrderListService {
           deliverydate: data.deliverydate,
         }
         this.fordelivery.update({ id: data.id }, shipStatus)
-        console.log("updated!");
+
+        let newData = {
+          qtydeliver: parseFloat(data.qtyship)
+        }
+        this.pld.update({ fdid: data.id }, newData)
       }
       else {
         let delivery = {
