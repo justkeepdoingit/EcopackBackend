@@ -369,13 +369,14 @@ export class OrderListService {
   async shippingReturn(id: any) {
     let query = await this.returnlist.query
       (`SELECT fd.deliverydate as deliverydate, fd.qtyship as qtyship, fd.receipt as receipt, rl.qtyreturn as qtyreturn, rl.reason as reason
-      FROM for_delivery as fd LEFT JOIN return_list as rl ON fd.orderid=rl.orderid WHERE fd.orderid = ${id.id}
+      FROM for_delivery as fd LEFT JOIN return_list as rl ON fd.receipt=rl.receipt WHERE fd.orderid = ${id.id}
     `)
 
     let returnData: any[] = [];
     query.forEach(data => {
       returnData.push(data);
     })
+
     return returnData;
   }
 
