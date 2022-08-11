@@ -6,9 +6,10 @@ import { PackingList } from './entities/packing-list.entity';
 import { PackingDetails } from './entities/packing-detail.entity';
 import { truckDetails } from './entities/truck-details.entity';
 import { OrderList } from 'src/order-list/entities/order-list.entity';
+import { forDelivery } from 'src/order-list/entities/for-delivery.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([PackingList, PackingDetails, truckDetails, OrderList])],
+  imports: [TypeOrmModule.forFeature([PackingList, PackingDetails, truckDetails, OrderList, forDelivery])],
   controllers: [PackingListController],
   providers: [PackingListService]
 })

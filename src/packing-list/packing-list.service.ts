@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 import { truckDetails } from './entities/truck-details.entity';
 import { truckDTO } from './dto/truckDto.dto';
 import { OrderList } from 'src/order-list/entities/order-list.entity';
+import { forDelivery } from 'src/order-list/entities/for-delivery.entity';
 @Injectable()
 export class PackingListService {
   constructor(
@@ -19,6 +20,8 @@ export class PackingListService {
     private readonly trucks: Repository<truckDetails>,
     @InjectRepository(OrderList)
     private readonly orders: Repository<OrderList>,
+    @InjectRepository(forDelivery)
+    private readonly fd: Repository<forDelivery>,
   ) { }
 
 
@@ -89,7 +92,7 @@ export class PackingListService {
       let newData = {
         plid: pldid,
         orderid: data.orderid,
-        qtydeliver: data.qtydeliver
+        qtydeliver: data.qtydeliver,
       }
       pld.push(newData);
     })

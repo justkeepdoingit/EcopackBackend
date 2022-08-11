@@ -305,7 +305,7 @@ export class OrderListService {
   }
 
   async updateShippingPl(data: any) {
-    data.forEach(data => {
+    data.forEach(async data => {
       if (data.id) {
         let shipStatus: any = {
           receipt: data.receipt,
@@ -336,17 +336,24 @@ export class OrderListService {
           shipstatus: 'Partial Delivery'
         }
         this.orders.update({ id: data.orderid }, updateOrder)
-      }
 
-      let qtyUpdate = {
-        qtydeliver: data.qtyship
-      }
+        let id2 = await this.fordelivery.createQueryBuilder().select('id').orderBy('id', 'DESC').limit(1).execute();
+        let fdid = 1;
+        if (id2) {
+          id2.forEach(data => {
+            fdid = data.id + 1;
+          })
+        }
 
-      this.pld.update({ id: data.pl }, qtyUpdate)
+        let qtyUpdate = {
+          qtydeliver: data.qtyship,
+          fdid: fdid
+        }
+
+        this.pld.update({ id: data.pl }, qtyUpdate)
+      }
     })
     let plid = await this.pld.findOne({ where: { id: data[0].pl } })
-
-    console.log("service", await this.getShippingPl({ id: plid.plid }))
     return await this.getShippingPl({ id: plid.plid });
   }
 
@@ -374,10 +381,11 @@ export class OrderListService {
 
 
   async getShippingPl(id: any) {
+    // dl.orderid = ol.id AND 
     let query = await this.orders.query(`SELECT dl.receipt as receipt,dl.id as id,ol.id as orderid, ol.so as so,ol.po as po,ol.name as name,ol.item as item,
         ol.itemdesc as itemdesc, ds.qtydeliver as qtyship, ds.id as pl, dl.shipstatus as shipstatus
         FROM packing_details as ds LEFT JOIN order_list as ol
-        ON ol.id=ds.orderid LEFT JOIN for_delivery as dl ON dl.orderid=ol.id AND dl.orderid=ds.orderid
+        ON ol.id=ds.orderid LEFT JOIN for_delivery as dl ON dl.id=ds.fdid
         WHERE ds.plid = ${id.id}
       `)
     let returnData: any[] = [];

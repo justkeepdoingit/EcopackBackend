@@ -11,4 +11,6 @@ export class PackingDetails {
     qtydeliver: number
     @Column({ nullable: true })
     prio: number
+    @Column({ nullable: true })
+    fdid: number
 }
