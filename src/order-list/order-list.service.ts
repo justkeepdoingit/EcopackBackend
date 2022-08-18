@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PackingDetails } from 'src/packing-list/entities/packing-detail.entity';
 import { PackingList } from 'src/packing-list/entities/packing-list.entity';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { deliveryDto } from './dto/delivery.dto';
 import { deliveryModel } from './dto/deliverymode.model';
 import { rejectListDTO } from './dto/rejectList.dto';
@@ -304,8 +304,12 @@ export class OrderListService {
     this.orders.update({ id: data.orderid }, updateStatus)
   }
 
-  async updateShippingPl(data: any) {
-    data.forEach(async data => {
+  async updateShippingPl(outerData: any) {
+
+    let id2 = await this.fordelivery.createQueryBuilder().select('id').orderBy('id', 'DESC').limit(1).execute();
+    let fdid = 1;
+
+    outerData.forEach(async data => {
       if (data.id) {
         let shipStatus: any = {
           receipt: data.receipt,
@@ -314,7 +318,6 @@ export class OrderListService {
           deliverydate: data.deliverydate,
         }
         this.fordelivery.update({ id: data.id }, shipStatus)
-
         let newData = {
           qtydeliver: parseFloat(data.qtyship)
         }
@@ -341,12 +344,8 @@ export class OrderListService {
         }
         this.orders.update({ id: data.orderid }, updateOrder)
 
-        let id2 = await this.fordelivery.createQueryBuilder().select('id').orderBy('id', 'DESC').limit(1).execute();
-        let fdid = 1;
         if (id2) {
-          id2.forEach(data => {
-            fdid = data.id + 1;
-          })
+          fdid = id2[0].id++;
         }
 
         let qtyUpdate = {
@@ -357,7 +356,7 @@ export class OrderListService {
         this.pld.update({ id: data.pl }, qtyUpdate)
       }
     })
-    let plid = await this.pld.findOne({ where: { id: data[0].pl } })
+    let plid = await this.pld.findOne({ where: { id: outerData[0].pl } })
     return await this.getShippingPl({ id: plid.plid });
   }
 
@@ -368,6 +367,19 @@ export class OrderListService {
       }).execute()
 
     return data;
+  }
+
+  async findNoDelivered() {
+    let orders = await this.orders.find()
+    return orders.filter(data => {
+      return data.shipstatus != 'Complete Delivery'
+    })
+  }
+  async findDelivered() {
+    let orders = await this.orders.find()
+    return orders.filter(data => {
+      return data.shipstatus == 'Complete Delivery'
+    })
   }
 
   async shippingReturn(id: any) {
@@ -386,7 +398,6 @@ export class OrderListService {
 
 
   async getShippingPl(id: any) {
-    // dl.orderid = ol.id AND 
     let query = await this.orders.query(`SELECT dl.receipt as receipt,dl.id as id,ol.id as orderid, ol.so as so,ol.po as po,ol.name as name,ol.item as item,
         ol.itemdesc as itemdesc, ds.qtydeliver as qtyship, ds.id as pl, dl.shipstatus as shipstatus
         FROM packing_details as ds LEFT JOIN order_list as ol

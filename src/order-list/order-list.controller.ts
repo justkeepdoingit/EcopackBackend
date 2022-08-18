@@ -248,8 +248,14 @@ export class OrderListController {
     this.orderListService.update(newUpdate.id, newUpdate)
   }
 
-  @Get()
-  findAll() {
+  @Get('/:sw')
+  findAll(@Param('sw') switchData: number) {
+    if (switchData == 2) {
+      return this.orderListService.findNoDelivered();
+    }
+    else if (switchData == 3) {
+      return this.orderListService.findDelivered()
+    }
     return this.orderListService.findAll();
   }
 
