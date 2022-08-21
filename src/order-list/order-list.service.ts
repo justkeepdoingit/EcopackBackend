@@ -357,7 +357,10 @@ export class OrderListService {
       }
     })
     let plid = await this.pld.findOne({ where: { id: outerData[0].pl } })
-    return await this.getShippingPl({ id: plid.plid });
+
+    setTimeout(() => {
+      return this.getShippingPl({ id: plid.plid });
+    }, 300);
   }
 
   async shipping(orderid: any) {
