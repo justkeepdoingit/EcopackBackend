@@ -317,6 +317,9 @@ export class OrderListService {
           shipstatus: data.shipstatus,
           deliverydate: data.deliverydate,
         }
+        if (shipStatus.shipstatus == 'Delivery Complete') {
+          this.orders.update({ id: data.orderid }, { shipstatus: shipStatus.shipstatus })
+        }
         this.fordelivery.update({ id: data.id }, shipStatus)
         let newData = {
           qtydeliver: parseFloat(data.qtyship)
@@ -357,10 +360,7 @@ export class OrderListService {
       }
     })
     let plid = await this.pld.findOne({ where: { id: outerData[0].pl } })
-
-    setTimeout(() => {
-      return this.getShippingPl({ id: plid.plid });
-    }, 300);
+    return await this.getShippingPl({ id: plid.plid });
   }
 
   async shipping(orderid: any) {
@@ -375,13 +375,13 @@ export class OrderListService {
   async findNoDelivered() {
     let orders = await this.orders.find()
     return orders.filter(data => {
-      return data.shipstatus != 'Complete Delivery'
+      return data.shipstatus != 'Delivery Complete'
     })
   }
   async findDelivered() {
     let orders = await this.orders.find()
     return orders.filter(data => {
-      return data.shipstatus == 'Complete Delivery'
+      return data.shipstatus == 'Delivery Complete'
     })
   }
 
