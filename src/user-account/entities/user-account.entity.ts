@@ -7,36 +7,36 @@ export class UserAccount {
     username: string
     @Column()
     password: string
-    @Column({nullable:true})
+    @Column({ nullable: true })
     firstname: string
-    @Column({nullable:true})
+    @Column({ nullable: true })
     lastname: string
-    @Column({default: 0})
+    @Column({ default: 0 })
     user_rights: number
-    @Column({default: false})
+    @Column({ default: false })
     planner: boolean
-    @Column({default: false})
+    @Column({ default: false })
     converting: boolean
-    @Column({default: false})
+    @Column({ default: false })
     delivery: boolean
-    @Column({default: false})
+    @Column({ default: false })
     edit_orders: boolean
-    @Column({default: false})
+    @Column({ default: false })
     lineup: boolean
-    @Column({default: false})
+    @Column({ default: false })
     fg: boolean
-    @Column({default: false})
+    @Column({ default: false })
     returns: boolean
-    @Column({default: false})
+    @Column({ default: false })
     status_page: boolean
-    @Column({default: false})
+    @Column({ default: false })
     import_orders: boolean
     @Column({ default: false })
     packing: boolean
-    @Column({default: false})
+    @Column({ default: false })
     useracc: boolean
-    @Column({nullable: true})
+    @Column({ nullable: true })
     contact: string
-    @Column({nullable: true})
+    @Column({ nullable: true })
     email: string
 }
