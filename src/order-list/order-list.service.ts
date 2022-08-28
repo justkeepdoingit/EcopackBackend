@@ -503,7 +503,7 @@ export class OrderListService {
       var fs = require('fs')
 
       var oldPath = `C:/tmp/${text}_${utc}.CSV`
-      var newPath = `C:/Users/amanc/Documents/Angular-Project/ecopack/ecopack-frontend/src/assets/${text}_${utc}.CSV`
+      var newPath = `C:/Users/ecopack/ecopack-frontend/src/assets/${text}_${utc}.CSV`
 
       fs.rename(oldPath, newPath, function (err) {
         if (err) throw err
